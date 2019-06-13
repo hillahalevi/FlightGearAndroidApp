@@ -18,23 +18,23 @@ public class Joystick extends View {
     private int currX;
     private int currY;
 
-    private Paint outerColor;
-    private Paint innerColor;
+    private Paint outerCircle;
+    private Paint innerCircle;
     private Paint backgroundColor;
 
     public Joystick(Context context) {
         super(context);
 
-        this.outerColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.outerColor.setColor(Color.GRAY);
-        this.outerColor.setStyle(Paint.Style.FILL);
+        this.outerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.outerCircle.setColor(Color.WHITE);
+        this.outerCircle.setStyle(Paint.Style.FILL);
 
-        this.innerColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.innerColor.setColor(Color.rgb(244, 163, 0));
-        this.innerColor.setStyle(Paint.Style.FILL);
+        this.innerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.innerCircle.setColor(Color.rgb(244, 163, 0));
+        this.innerCircle.setStyle(Paint.Style.FILL);
 
         this.backgroundColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.backgroundColor.setColor(Color.rgb(0, 128, 128));
+        this.backgroundColor.setColor(Color.rgb(0, 150, 136));
         this.backgroundColor.setStyle(Paint.Style.FILL);
 
 
@@ -52,8 +52,8 @@ public class Joystick extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawRect(0, 0, CENTER_X * 2, CENTER_Y * 2, backgroundColor);
-        canvas.drawCircle(CENTER_X, CENTER_Y, OUTER_RADIUS, outerColor);
-        canvas.drawCircle(currX, currY, INNER_RADIUS, innerColor);
+        canvas.drawCircle(CENTER_X, CENTER_Y, OUTER_RADIUS, outerCircle);
+        canvas.drawCircle(currX, currY, INNER_RADIUS, innerCircle);
     }
 
     @Override
