@@ -1,0 +1,67 @@
+package com.example.flightgearandroidapp.services;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ClientSide {
+    private Map<String, String> paths;
+    private Socket socket;
+    private OutputStream outStream;
+
+    ClientSide(){
+        this.paths = new HashMap<>();
+        this.paths.put("AILERON", "/controls/flight/aileron");
+        this.paths.put("ELEVATOR", "/controls/flight/elevator");
+    }
+
+    public void connect(String ip, int port) {
+        //TODO connect - check with dor server code - ask jenny
+        try {
+            InetAddress address = InetAddress.getByAddress(ip.getBytes());
+            this.socket = new Socket(address,port);
+            this.outStream = this.socket.getOutputStream();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int sendCommand(String parameter, String value) {
+        parameter = parameter.toUpperCase();
+        if (!this.paths.containsKey(parameter)) {
+            return -1;
+        }
+
+        String msg = "set ";
+        if (parameter.equals("AILERON")) {
+            msg += this.paths.get(parameter) + " ";
+        } else if (parameter.equals("ELEVATOR")) {
+            msg += this.paths.get("ELEVATOR") + " ";
+        }
+        msg += value + "\r\n";
+        byte[] command = msg.getBytes();
+
+        try {
+            this.outStream.write(command, 0, command.length);
+            this.outStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public void disconnect() {
+        try {
+            this.outStream.close();
+            this.socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+}
+
