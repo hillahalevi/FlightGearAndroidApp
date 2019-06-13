@@ -20,6 +20,9 @@
         </activity>
         <activity android:name=".JoystickActivity"
             android:parentActivityName=".LoginActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop"
+            tools:targetApi="jelly_bean" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET"
+        tools:ignore="ManifestOrder" />
 </manifest>

@@ -12,26 +12,26 @@
         android:layout_width="85dp"
         android:layout_height="0dp"
         android:layout_marginTop="52dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="10dp"
         android:text="@string/show_ip_msg"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginRight="20dp" />
+        android:layout_marginRight="10dp" />
 
     <TextView
         android:id="@+id/textViewPort"
         android:layout_width="82dp"
         android:layout_height="64dp"
         android:layout_marginTop="36dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="10dp"
         android:text="@string/show_port_msg"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewIP"
-        android:layout_marginRight="24dp" />
+        android:layout_marginRight="10dp" />
 
     <EditText
         android:id="@+id/editTextIP"

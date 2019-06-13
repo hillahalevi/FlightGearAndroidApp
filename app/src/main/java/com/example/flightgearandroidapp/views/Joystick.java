@@ -2,6 +2,7 @@ package com.example.flightgearandroidapp.views;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -9,16 +10,17 @@ import android.util.DisplayMetrics;
 import android.view.View;
 
 public class Joystick extends View {
-    private final int OUTER_RADIUS = 350;
-    private final int INNER_RADIUS = 140;
-    private final int CENTER_X;
-    private final int CENTER_Y;
-
-    private Paint outerColor;
-    private Paint innerColor;
+    private int OUTER_RADIUS;
+    private int INNER_RADIUS;
+    private int CENTER_X;
+    private int CENTER_Y;
 
     private int currX;
     private int currY;
+
+    private Paint outerColor;
+    private Paint innerColor;
+    private Paint backgroundColor;
 
     public Joystick(Context context) {
         super(context);
@@ -28,30 +30,42 @@ public class Joystick extends View {
         this.outerColor.setStyle(Paint.Style.FILL);
 
         this.innerColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.innerColor.setColor(Color.RED);
+        this.innerColor.setColor(Color.rgb(244, 163, 0));
         this.innerColor.setStyle(Paint.Style.FILL);
 
-//        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
-//        Point size = new Point();
-//        display.getSize(size);
-//        currX = CENTER_X = size.x / 2;
-////        currY = CENTER_Y = size.y / 2 - size.y / 10;
-//        currY = CENTER_Y = size.y / 2;
+        this.backgroundColor = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.backgroundColor.setColor(Color.rgb(0, 128, 128));
+        this.backgroundColor.setStyle(Paint.Style.FILL);
+
+
         DisplayMetrics metrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(metrics);
         currX = CENTER_X = metrics.widthPixels / 2;
         currY = CENTER_Y = metrics.heightPixels / 2;
+        OUTER_RADIUS = metrics.widthPixels / 3;
+        INNER_RADIUS = OUTER_RADIUS / 3;
     }
+
+
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(currX, currY, OUTER_RADIUS, this.outerColor);
-        canvas.drawCircle(currX, currY, INNER_RADIUS, this.innerColor);
+        canvas.drawRect(0, 0, CENTER_X * 2, CENTER_Y * 2, backgroundColor);
+        canvas.drawCircle(CENTER_X, CENTER_Y, OUTER_RADIUS, outerColor);
+        canvas.drawCircle(currX, currY, INNER_RADIUS, innerColor);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        currX = CENTER_X = w / 2;
+        currY = CENTER_Y = h / 2;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            OUTER_RADIUS = CENTER_X * 2 / 3;
+        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            OUTER_RADIUS = CENTER_Y * 2 / 3;
+        }
+        INNER_RADIUS = OUTER_RADIUS / 3;
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
