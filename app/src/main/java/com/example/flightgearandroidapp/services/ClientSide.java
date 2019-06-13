@@ -12,7 +12,7 @@ public class ClientSide {
     private Socket socket;
     private OutputStream outStream;
 
-    ClientSide(){
+    public ClientSide(){
         this.paths = new HashMap<>();
         this.paths.put("AILERON", "/controls/flight/aileron");
         this.paths.put("ELEVATOR", "/controls/flight/elevator");
@@ -35,21 +35,15 @@ public class ClientSide {
             return -1;
         }
 
-        String msg = "set ";
-        if (parameter.equals("AILERON")) {
-            msg += this.paths.get(parameter) + " ";
-        } else if (parameter.equals("ELEVATOR")) {
-            msg += this.paths.get("ELEVATOR") + " ";
-        }
-        msg += value + "\r\n";
+        String msg = "set " + (this.paths.get(parameter) + " ") + (value + "\r\n");
         byte[] command = msg.getBytes();
 
-        try {
-            this.outStream.write(command, 0, command.length);
-            this.outStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            this.outStream.write(command, 0, command.length);
+//            this.outStream.flush();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         return 0;
     }
 
