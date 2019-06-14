@@ -1,35 +1,33 @@
 package com.example.flightgearandroidapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.flightgearandroidapp.services.ClientSide;
-import com.example.flightgearandroidapp.views.Joystick;
+import com.example.flightgearandroidapp.views.JoystickView;
 
+//TODO normalize the values to -1 --> 1
 public class JoystickActivity extends Activity {
     private ClientSide client;
-    private Joystick joystickView;
-    private boolean isTouchingJoystick;
-    private TextView textView;
+    private JoystickView joystickView;
+    private boolean isInJoystick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.joystickView = new Joystick(this);
+        this.joystickView = new JoystickView(this);
         setContentView(this.joystickView);
-//        setContentView(R.layout.activity_joystick);
-//        this.textView = (TextView)findViewById(R.id.textViewAngle);
+        this.isInJoystick = false;
 
-        this.isTouchingJoystick = false;
+        Intent intent = getIntent();
+        String ip = intent.getStringExtra("ip");
+        int port = intent.getIntExtra("port", 5400);
 
-//        Intent intent = getIntent();
-//        String ip = intent.getStringExtra("ip");
-//        int port = intent.getIntExtra("port", 5400);
-
-//        this.client = new Client();
-//        this.client.connect(ip, port);
+        this.client = new ClientSide();
+        this.client.connect(ip, port);
     }
 
     @Override
@@ -38,7 +36,7 @@ public class JoystickActivity extends Activity {
         int touchX = (int) event.getRawX();
         int touchY = (int) event.getRawY();
 
-//        Toast.makeText(JoystickActivity.this,"(x:" + touchX + ", y:" + touchY + ")",Toast.LENGTH_SHORT).show();
+        Toast.makeText(JoystickActivity.this, "(x:" + touchX + ", y:" + touchY + ")", Toast.LENGTH_SHORT).show();
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
@@ -47,16 +45,16 @@ public class JoystickActivity extends Activity {
                     return false;
                 }
                 // otherwise, update the flag for upcoming move actions
-                this.isTouchingJoystick = true;
+                this.isInJoystick = true;
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
-                if (!this.isTouchingJoystick) {
+                if (!this.isInJoystick) {
                     return false;
                 }
                 // get the values to send to the client
                 double distance = this.distance(touchX, touchY, this.joystickView.getCenterX(), this.joystickView.getCenterY());
-                double magnitude =  distance/this.joystickView.getOuterRadius();
+                double magnitude = distance / this.joystickView.getOuterRadius();
                 if (magnitude >= 1) {
                     magnitude = 1;
                 }
@@ -66,8 +64,8 @@ public class JoystickActivity extends Activity {
                 double elevator = Math.sin(Math.toRadians(angle)) * magnitude * -1;
                 double aileron = Math.cos(Math.toRadians(angle)) * magnitude;
 
-//                this.client.sendCommand("elevator", String.valueOf(elevator));
-//                this.client.sendCommand("aileron", String.valueOf(aileron));
+                this.client.sendCommand("elevator", String.valueOf(elevator));
+                this.client.sendCommand("aileron", String.valueOf(aileron));
 
                 // draw the new position
                 int[] newPos = this.getAdjustedPosition(touchX, touchY, angle, distance);
@@ -78,7 +76,7 @@ public class JoystickActivity extends Activity {
             case MotionEvent.ACTION_CANCEL: {
                 // place the joystick in its original position
                 this.updateJoystickPosition(this.joystickView.getCenterX(), this.joystickView.getCenterY());
-                this.isTouchingJoystick = false;
+                this.isInJoystick = false;
                 break;
             }
         }
@@ -95,20 +93,24 @@ public class JoystickActivity extends Activity {
     }
 
     private double getAngle(float dx, float dy) {
-        if (dx >= 0 && dy >= 0) return Math.toDegrees(Math.atan(dy / dx));
-        else if (dx < 0 && dy >= 0) return Math.toDegrees(Math.atan(dy / dx)) + 180;
-        else if (dx < 0 && dy < 0) return Math.toDegrees(Math.atan(dy / dx)) + 180;
-        else if (dx >= 0 && dy < 0) return Math.toDegrees(Math.atan(dy / dx)) + 360;
-        return 0;
+        double angle = 0;
+        if (dx >= 0 && dy >= 0) {
+            angle = Math.toDegrees(Math.atan(dy / dx));
+        } else if ((dx < 0 && dy >= 0) ||(dx < 0 && dy < 0)) {
+            angle = Math.toDegrees(Math.atan(dy / dx)) + 180;
+        } else if (dx >= 0 && dy < 0) {
+            angle = Math.toDegrees(Math.atan(dy / dx)) + 360;
+        }
+        return angle;
     }
 
     private int[] getAdjustedPosition(int touchX, int touchY, double angle, double distanceFromCenter) {
         int outerRadius = this.joystickView.getOuterRadius();
-        // if the position isn't outside the joystick, return the original values
         if (distanceFromCenter <= outerRadius) {
+            //irrelevant touch
             return new int[]{touchX, touchY};
         }
-        // placing the joystick on the edge of the pad according to the relative position to the center
+        // placing the joystick  relatively
         int newX = this.joystickView.getCenterX() + (int) (Math.cos(Math.toRadians(angle)) * outerRadius);
         int newY = this.joystickView.getCenterY() + (int) (Math.sin(Math.toRadians(angle)) * outerRadius);
         return new int[]{newX, newY};

@@ -1,6 +1,5 @@
 package com.example.flightgearandroidapp.services;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -29,10 +28,10 @@ public class ClientSide {
         }
     }
 
-    public int sendCommand(String parameter, String value) {
+    public void sendCommand(String parameter, String value) {
         parameter = parameter.toUpperCase();
         if (!this.paths.containsKey(parameter)) {
-            return -1;
+            return;
         }
 
         String msg = "set " + (this.paths.get(parameter) + " ") + (value + "\r\n");
@@ -44,7 +43,6 @@ public class ClientSide {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-        return 0;
     }
 
     public void disconnect() {

@@ -16,13 +16,11 @@ public class LoginActivity extends Activity {
 
     public void sendConnect(View view) {
         Intent intent = new Intent(this, JoystickActivity.class);
-        EditText editIp = (EditText) findViewById(R.id.editTextIP);
-        EditText editPort = (EditText) findViewById(R.id.editTextPort);
-
-//        intent.putExtra("ip", editIp.getText().toString());
-//        intent.putExtra("port", Integer.parseInt(editPort.getText().toString()));
-        intent.putExtra("ip","123");
-        intent.putExtra("port",122);
+        EditText editIp = findViewById(R.id.ipAdress);
+        EditText editPort = findViewById(R.id.portAdress);
+        intent.putExtra("ip",editIp.getText().toString());
+        //todo check for input - none is causing an exception
+        intent.putExtra("port",Integer.parseInt(editPort.getText().toString()));
         startActivity(intent);
     }
 }

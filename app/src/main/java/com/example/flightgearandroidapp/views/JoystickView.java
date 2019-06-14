@@ -9,7 +9,7 @@ import android.graphics.Paint;
 import android.util.DisplayMetrics;
 import android.view.View;
 
-public class Joystick extends View {
+public class JoystickView extends View {
     private int OUTER_RADIUS;
     private int INNER_RADIUS;
     private int CENTER_X;
@@ -22,22 +22,9 @@ public class Joystick extends View {
     private Paint innerCircle;
     private Paint backgroundColor;
 
-    public Joystick(Context context) {
+    public JoystickView(Context context) {
         super(context);
-
-        this.outerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.outerCircle.setColor(Color.WHITE);
-        this.outerCircle.setStyle(Paint.Style.FILL);
-
-        this.innerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.innerCircle.setColor(Color.rgb(244, 163, 0));
-        this.innerCircle.setStyle(Paint.Style.FILL);
-
-        this.backgroundColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.backgroundColor.setColor(Color.rgb(0, 150, 136));
-        this.backgroundColor.setStyle(Paint.Style.FILL);
-
-
+        setJoystick();
         DisplayMetrics metrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(metrics);
         currX = CENTER_X = metrics.widthPixels / 2;
@@ -45,8 +32,6 @@ public class Joystick extends View {
         OUTER_RADIUS = metrics.widthPixels / 3;
         INNER_RADIUS = OUTER_RADIUS / 3;
     }
-
-
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -57,16 +42,31 @@ public class Joystick extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    protected void onSizeChanged(int w, int h, int oldWeight, int oldHeight) {
         currX = CENTER_X = w / 2;
         currY = CENTER_Y = h / 2;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             OUTER_RADIUS = CENTER_X * 2 / 3;
-        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             OUTER_RADIUS = CENTER_Y * 2 / 3;
         }
         INNER_RADIUS = OUTER_RADIUS / 3;
-        super.onSizeChanged(w, h, oldw, oldh);
+        super.onSizeChanged(w, h, oldWeight, oldHeight);
+    }
+
+    private void setJoystick() {
+        this.outerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.outerCircle.setColor(Color.WHITE);
+        this.outerCircle.setStyle(Paint.Style.FILL);
+
+        this.innerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.innerCircle = new Paint(Color.GRAY);
+        this.innerCircle.setStyle(Paint.Style.FILL);
+
+        this.backgroundColor = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.backgroundColor.setColor(Color.rgb(0, 150, 136));
+        this.backgroundColor.setStyle(Paint.Style.FILL);
     }
 
     public int getOuterRadius() {
