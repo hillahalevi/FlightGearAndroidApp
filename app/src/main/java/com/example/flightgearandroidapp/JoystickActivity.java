@@ -1,61 +1,33 @@
 package com.example.flightgearandroidapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
-
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.example.flightgearandroidapp.services.ClientSide;
 import com.example.flightgearandroidapp.views.JoystickView;
 
-
-public class JoystickActivity extends AppCompatActivity {
-
+//TODO normalize the values to -1 --> 1
+public class JoystickActivity extends Activity {
     private ClientSide client;
     private JoystickView joystickView;
-    private boolean isTouchingJoystick;
-    private boolean exceptionOccured = false;
+    private boolean isInJoystick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.joystickView = new JoystickView(this);
+        setContentView(this.joystickView);
+        this.isInJoystick = false;
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run(){
-                try{
-                    Intent intent = getIntent();
-                    String ip = intent.getStringExtra("ip");
-                    int port = Integer.parseInt(intent.getStringExtra("port"));
-                    client = new ClientSide();
-                    client.connect(ip, port);
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
-            public void uncaughtException(Thread th, Throwable ex) {
-                System.out.println("Uncaught exception: " + ex);
-                exceptionOccured = true;
-            }
-        };
-        t.setUncaughtExceptionHandler(h);
-        t.start();
-        try
-        {
-            t.join();
-            if(!exceptionOccured){
-                setContentView(this.joystickView);
-                this.isTouchingJoystick = false;
-            }
-        }catch (Exception e ){
-            e.printStackTrace();
-        }
+        Intent intent = getIntent();
+        String ip = intent.getStringExtra("ip");
+        int port = intent.getIntExtra("port", 5400);
+
+        this.client = new ClientSide();
+        this.client.connect(ip, port);
     }
 
     @Override
@@ -64,6 +36,8 @@ public class JoystickActivity extends AppCompatActivity {
         int touchX = (int) event.getRawX();
         int touchY = (int) event.getRawY();
 
+        Toast.makeText(JoystickActivity.this, "(x:" + touchX + ", y:" + touchY + ")", Toast.LENGTH_SHORT).show();
+
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 // if the touch happened outside the joystick then ignore it
@@ -71,11 +45,11 @@ public class JoystickActivity extends AppCompatActivity {
                     return false;
                 }
                 // otherwise, update the flag for upcoming move actions
-                this.isTouchingJoystick = true;
+                this.isInJoystick = true;
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
-                if (!this.isTouchingJoystick) {
+                if (!this.isInJoystick) {
                     return false;
                 }
                 // get the values to send to the client
@@ -85,8 +59,10 @@ public class JoystickActivity extends AppCompatActivity {
                     magnitude = 1;
                 }
                 double angle = this.getAngle(touchX - this.joystickView.getCenterX(), touchY - this.joystickView.getCenterY());
-                float elevator = (float) (Math.sin(Math.toRadians(angle)) * magnitude * -1);
-                float aileron = (float) (Math.cos(Math.toRadians(angle)) * magnitude);
+//                this.textView.setText(String.valueOf((int)angle));
+
+                double elevator = Math.sin(Math.toRadians(angle)) * magnitude * -1;
+                double aileron = Math.cos(Math.toRadians(angle)) * magnitude;
 
                 this.client.sendCommand("elevator", String.valueOf(elevator));
                 this.client.sendCommand("aileron", String.valueOf(aileron));
@@ -100,7 +76,7 @@ public class JoystickActivity extends AppCompatActivity {
             case MotionEvent.ACTION_CANCEL: {
                 // place the joystick in its original position
                 this.updateJoystickPosition(this.joystickView.getCenterX(), this.joystickView.getCenterY());
-                this.isTouchingJoystick = false;
+                this.isInJoystick = false;
                 break;
             }
         }
@@ -117,20 +93,24 @@ public class JoystickActivity extends AppCompatActivity {
     }
 
     private double getAngle(float dx, float dy) {
-        if (dx >= 0 && dy >= 0) return Math.toDegrees(Math.atan(dy / dx));
-        else if (dx < 0 && dy >= 0) return Math.toDegrees(Math.atan(dy / dx)) + 180;
-        else if (dx < 0 && dy < 0) return Math.toDegrees(Math.atan(dy / dx)) + 180;
-        else if (dx >= 0 && dy < 0) return Math.toDegrees(Math.atan(dy / dx)) + 360;
-        return 0;
+        double angle = 0;
+        if (dx >= 0 && dy >= 0) {
+            angle = Math.toDegrees(Math.atan(dy / dx));
+        } else if ((dx < 0 && dy >= 0) ||(dx < 0 && dy < 0)) {
+            angle = Math.toDegrees(Math.atan(dy / dx)) + 180;
+        } else if (dx >= 0 && dy < 0) {
+            angle = Math.toDegrees(Math.atan(dy / dx)) + 360;
+        }
+        return angle;
     }
 
     private int[] getAdjustedPosition(int touchX, int touchY, double angle, double distanceFromCenter) {
         int outerRadius = this.joystickView.getOuterRadius();
-        // if the position isn't outside the joystick, return the original values
         if (distanceFromCenter <= outerRadius) {
+            //irrelevant touch
             return new int[]{touchX, touchY};
         }
-        // placing the joystick on the edge of the pad according to the relative position to the center
+        // placing the joystick  relatively
         int newX = this.joystickView.getCenterX() + (int) (Math.cos(Math.toRadians(angle)) * outerRadius);
         int newY = this.joystickView.getCenterY() + (int) (Math.sin(Math.toRadians(angle)) * outerRadius);
         return new int[]{newX, newY};

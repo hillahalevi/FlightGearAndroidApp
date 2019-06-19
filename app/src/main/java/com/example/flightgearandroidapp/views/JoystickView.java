@@ -1,5 +1,6 @@
 package com.example.flightgearandroidapp.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
@@ -9,80 +10,63 @@ import android.util.DisplayMetrics;
 import android.view.View;
 
 public class JoystickView extends View {
-    private Paint outerColor;
-    private Paint innerColor;
-    private Paint backgroundColor;
-
-    private int CENTER_X;
-    private int CENTER_Y;
-    private int currX;
-    private int currY;
     private int OUTER_RADIUS;
     private int INNER_RADIUS;
+    private int CENTER_X;
+    private int CENTER_Y;
 
-    private int statusBarHeight;
+    private int currX;
+    private int currY;
 
-    private boolean isScreenChanged;
+    private Paint outerCircle;
+    private Paint innerCircle;
+    private Paint backgroundColor;
 
     public JoystickView(Context context) {
         super(context);
-
-        // set the colors of the background and the joystick components
-        this.outerColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.outerColor.setColor(Color.GRAY);
-        this.outerColor.setStyle(Paint.Style.FILL);
-
-        this.innerColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.innerColor.setColor(Color.rgb(244, 163, 0));
-        this.innerColor.setStyle(Paint.Style.FILL);
-
-        this.backgroundColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.backgroundColor.setColor(Color.rgb(0, 128, 128));
-        this.backgroundColor.setStyle(Paint.Style.FILL);
-
-        // get the dimensions of the actual screen
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        currX = CENTER_X = dm.widthPixels / 2;
-        currY = CENTER_Y = dm.heightPixels / 2;
-        OUTER_RADIUS = dm.widthPixels / 3;
+        setJoystick();
+        DisplayMetrics metrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        currX = CENTER_X = metrics.widthPixels / 2;
+        currY = CENTER_Y = metrics.heightPixels / 2;
+        OUTER_RADIUS = metrics.widthPixels / 3;
         INNER_RADIUS = OUTER_RADIUS / 3;
-
-        // account for padding with the status bar
-        this.statusBarHeight = this.getStatusBarHeight() * (int) dm.density;
-
-        this.isScreenChanged = false;
     }
-
-    private int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
-    }
-
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawRect(0, 0, CENTER_X * 2, CENTER_Y * 2, backgroundColor);
-        canvas.drawCircle(CENTER_X, CENTER_Y - statusBarHeight, OUTER_RADIUS, outerColor);
-        canvas.drawCircle(currX, currY - statusBarHeight, INNER_RADIUS, innerColor);
+        canvas.drawCircle(CENTER_X, CENTER_Y, OUTER_RADIUS, outerCircle);
+        canvas.drawCircle(currX, currY, INNER_RADIUS, innerCircle);
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        this.isScreenChanged = true;
+    protected void onSizeChanged(int w, int h, int oldWeight, int oldHeight) {
         currX = CENTER_X = w / 2;
-        currY = CENTER_Y = (h + statusBarHeight) / 2;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        currY = CENTER_Y = h / 2;
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             OUTER_RADIUS = CENTER_X * 2 / 3;
-        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             OUTER_RADIUS = CENTER_Y * 2 / 3;
         }
         INNER_RADIUS = OUTER_RADIUS / 3;
-        super.onSizeChanged(w, h, oldw, oldh);
+        super.onSizeChanged(w, h, oldWeight, oldHeight);
+    }
+
+    private void setJoystick() {
+        this.outerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.outerCircle.setColor(Color.WHITE);
+        this.outerCircle.setStyle(Paint.Style.FILL);
+
+        this.innerCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.innerCircle = new Paint(Color.GRAY);
+        this.innerCircle.setStyle(Paint.Style.FILL);
+
+        this.backgroundColor = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.backgroundColor.setColor(Color.rgb(0, 150, 136));
+        this.backgroundColor.setStyle(Paint.Style.FILL);
     }
 
     public int getOuterRadius() {
@@ -109,23 +93,11 @@ public class JoystickView extends View {
         return this.currY;
     }
 
-    public boolean isScreenChanged() {
-        return this.isScreenChanged;
-    }
-
     public void setX(int x) {
         this.currX = x;
     }
 
     public void setY(int y) {
         this.currY = y;
-    }
-
-    public void notifyArgsUpdated() {
-        this.isScreenChanged = false;
-    }
-
-    public int[] getDisplayArgs() {
-        return new int[]{CENTER_X, CENTER_Y, OUTER_RADIUS, INNER_RADIUS};
     }
 }
