@@ -59,7 +59,6 @@ public class TcpClient {
      */
     public void stopClient() {
 
-
         if (writer != null) {
             writer.flush();
             writer.close();
