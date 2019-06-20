@@ -116,7 +116,6 @@ public class TcpClient {
      * @return
      */
     public boolean isConnected() {
-        //hi hilla - test!
         if(socket == null)
             return false;
         return socket.isConnected();
