@@ -52,22 +52,23 @@ public class JoystickActivity extends Activity {
         this.joystickView = new JoystickView(this);
         setContentView(this.joystickView);
         this.isInJoystick = false;
+
         connectToServer();
     }
-
     private void connectToServer() {
-        Intent intent = getIntent();
-        String ip = intent.getStringExtra("ip");
-        int port = intent.getIntExtra("port", 5400);
+            Intent intent = getIntent();
+            String ip = intent.getStringExtra("ip");
+            int port = intent.getIntExtra("port", 5400);
 
-        this.client = new TcpClient(ip, port);
+            this.client = new TcpClient(ip, port);
 
-        if(this.client.isConnected()) {
-            Toast.makeText(JoystickActivity.this,"connected to server", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(JoystickActivity.this,"failed to connect", Toast.LENGTH_SHORT).show();
-        }
+            if(this.client.isConnected()) {
+                Toast.makeText(JoystickActivity.this,"connected to server", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(JoystickActivity.this,"failed to connect", Toast.LENGTH_SHORT).show();
+            }
     }
+
 
     /**
      * Is responsible for the joystick-moving logic-whenever a touch accrues
