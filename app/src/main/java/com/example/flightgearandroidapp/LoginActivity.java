@@ -23,9 +23,10 @@ public class LoginActivity extends Activity {
         Intent intent = new Intent(this, JoystickActivity.class);
         EditText editIp = (EditText) findViewById(R.id.ipAdress);
         EditText editPort = (EditText) findViewById(R.id.portAdress);
+        int port = Integer.parseInt(editPort.getText().toString());
 
         intent.putExtra("ip",editIp.getText().toString());
-        intent.putExtra("port",editPort.getText().toString());
+        intent.putExtra("port",port);
         startActivity(intent);
     }
 }
