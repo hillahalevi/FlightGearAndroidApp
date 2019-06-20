@@ -61,12 +61,6 @@ public class JoystickActivity extends Activity {
             int port = intent.getIntExtra("port", 5400);
 
             this.client = new TcpClient(ip, port);
-
-            if(this.client.isConnected()) {
-                Toast.makeText(JoystickActivity.this,"connected to server", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(JoystickActivity.this,"failed to connect", Toast.LENGTH_SHORT).show();
-            }
     }
 
 
