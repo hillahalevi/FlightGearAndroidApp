@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class TcpClient {
 
+    //params
     public static final String TAG = TcpClient.class.getSimpleName();
     private  String serverIp;
     private int port;
@@ -22,6 +23,7 @@ public class TcpClient {
     public TcpClient(String serverIp, int port) {
         this.serverIp = serverIp;
         this.port = port;
+        //build map for values
         this.paths = new HashMap<>();
         this.paths.put("AILERON", "/controls/flight/aileron");
         this.paths.put("ELEVATOR", "/controls/flight/elevator");
@@ -29,20 +31,28 @@ public class TcpClient {
         startConnection();
     }
 
-
+    /**
+     * send message to server
+     * @param parameter
+     * @param value
+     */
     public void sendMessage(String parameter, String value) {
 
         parameter = parameter.toUpperCase();
+        //get path from map
         if (!this.paths.containsKey(parameter)) {
             return;
         }
+        //build mesasge
         final String message = "set " + (this.paths.get(parameter) + " ") + (value + "\r\n");
+        //create new thread
         final Thread thread = new Thread() {
             @Override
             public void run() {
-                if (writer != null) {
+                //check if connection of
+                if (writer != null && socket != null && socket.isConnected()) {
                     try {
-                        String msg = message + " \r\n";
+                        String msg = message;
                         writer.print(msg);
                         writer.flush();
                     } catch (Exception e) {
@@ -71,18 +81,22 @@ public class TcpClient {
         }
     }
 
+    /**
+     * start connection to server
+     */
     private void startConnection() {
 
         final Thread thread = new Thread(){
-            //coonect to the server
+            //connect to the server thread
             public void run() {
                 try {
-                    //here you must put your computer's IP address.
-                    InetAddress serverAddr = InetAddress.getByName("10.0.2.2");
+                    //get ip
+                    InetAddress serverAddr = InetAddress.getByName(serverIp);
 
                     //create a socket to make the connection with the server
                     socket = new Socket(serverAddr, port);
                     try {
+                        //get stream writer
                         writer = new PrintWriter(socket.getOutputStream(),true);
 
                     } catch (Exception e) {
@@ -97,7 +111,10 @@ public class TcpClient {
         };
         thread.start();
     }
-
+    /**
+     * get socket status
+     * @return
+     */
     public boolean isConnected() {
         if(socket == null)
             return false;

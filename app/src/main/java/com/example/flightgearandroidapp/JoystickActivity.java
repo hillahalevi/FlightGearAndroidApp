@@ -53,9 +53,7 @@ public class JoystickActivity extends Activity {
         setContentView(this.joystickView);
         this.isInJoystick = false;
         connectToServer();
-
     }
-
 
     private void connectToServer() {
         //TODO with jenny
