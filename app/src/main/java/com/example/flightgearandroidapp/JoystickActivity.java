@@ -56,7 +56,6 @@ public class JoystickActivity extends Activity {
     }
 
     private void connectToServer() {
-        //TODO with jenny
         Intent intent = getIntent();
         String ip = intent.getStringExtra("ip");
         int port = intent.getIntExtra("port", 5400);
@@ -133,7 +132,6 @@ public class JoystickActivity extends Activity {
         Info info = getNormalizeValues(touchPoint);
         //see the values
         Toast.makeText(JoystickActivity.this, "(elevator:" + info.getElevator() + ", aileron:" + info.getAileron() + ")", Toast.LENGTH_SHORT).show();
-        //todo check with jenny
         this.client.sendMessage("elevator", String.valueOf(info.getElevator()));
         this.client.sendMessage("aileron", String.valueOf(info.getAileron()));
 
