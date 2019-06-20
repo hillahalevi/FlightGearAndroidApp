@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
-import com.example.flightgearandroidapp.services.ClientSide;
+import com.example.flightgearandroidapp.services.TcpClient;
 import com.example.flightgearandroidapp.views.JoystickView;
 
 //TODO normalize the values to -1 --> 1
 public class JoystickActivity extends Activity {
-    private ClientSide client;
+    private TcpClient client;
     private JoystickView joystickView;
     private boolean isInJoystick;
 
@@ -26,8 +26,8 @@ public class JoystickActivity extends Activity {
         String ip = intent.getStringExtra("ip");
         int port = intent.getIntExtra("port", 5400);
 
-        this.client = new ClientSide();
-        this.client.connect(ip, port);
+        this.client = new TcpClient(ip, port);
+
     }
 
     @Override
@@ -64,8 +64,8 @@ public class JoystickActivity extends Activity {
                 double elevator = Math.sin(Math.toRadians(angle)) * magnitude * -1;
                 double aileron = Math.cos(Math.toRadians(angle)) * magnitude;
 
-                this.client.sendCommand("elevator", String.valueOf(elevator));
-                this.client.sendCommand("aileron", String.valueOf(aileron));
+                this.client.sendMessage("elevator", String.valueOf(elevator));
+                this.client.sendMessage("aileron", String.valueOf(aileron));
 
                 // draw the new position
                 int[] newPos = this.getAdjustedPosition(touchX, touchY, angle, distance);
@@ -124,7 +124,7 @@ public class JoystickActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        this.client.disconnect();
+        this.client.stopClient();
         super.onDestroy();
     }
 }

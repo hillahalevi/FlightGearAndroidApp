@@ -3,8 +3,12 @@ package com.example.flightgearandroidapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+
+import java.net.InetAddress;
+import java.net.Socket;
 
 
 public class LoginActivity extends Activity {
@@ -12,6 +16,7 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
     }
 
     public void sendConnect(View view) {
